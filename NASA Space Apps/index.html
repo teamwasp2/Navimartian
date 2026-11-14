@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Martian Map · EVA Route Planner</title>
+    <link rel="icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div id="viewport"></div>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="worm">NASA</span>
+        <div>
+          <p class="kicker">Space Apps 2026 · Interplanetary Survival Guide</p>
+          <h1>Martian Map <span id="site-name">Jezero Crater</span></h1>
+        </div>
+      </div>
+      <nav id="site-seg" class="site-seg" role="group" aria-label="Mission site">
+        <button type="button" data-site="jezero" class="is-on">
+          <strong>Jezero Crater</strong>
+          <span>18.4°N, 77.6°E</span>
+        </button>
+        <button type="button" data-site="valles">
+          <strong>Valles Marineris</strong>
+          <span>13.7°S, 60.0°W</span>
+        </button>
+        <button type="button" data-site="arcadia">
+          <strong>Arcadia Planitia</strong>
+          <span>39.5°N, 171.5°W</span>
+        </button>
+        <button type="button" data-site="gale">
+          <strong>Gale Crater</strong>
+          <span>5.3°S, 137.5°E</span>
+        </button>
+        <button type="button" data-site="olympus">
+          <strong>Olympus Mons</strong>
+          <span>18.5°N, 134.0°W</span>
+        </button>
+      </nav>
+      <div class="pills">
+        <span id="source-pill" class="pill">Terrain pending</span>
+        <span id="grid-pill" class="pill">150 × 150 · 235 m</span>
+      </div>
+    </header>
+    <p id="storm-banner" class="storm-banner" hidden>⚠️ SOLAR PARTICLE EVENT DETECTED — AUTONOMOUS REROUTE ENGAGED</p>
+
+    <aside class="panel panel-left">
+      <header class="panel-head">
+        <p class="kicker">Route planner</p>
+        <h2>EVA corridor</h2>
+      </header>
+
+      <div class="seg" id="mode-seg" role="group" aria-label="Route mode">
+        <button type="button" id="mode-safest" class="is-on" data-mode="safest">Safest</button>
+        <button type="button" id="mode-fastest" data-mode="fastest">Fastest</button>
+        <button type="button" id="mode-custom" data-mode="custom">Custom</button>
+      </div>
+
+      <p class="kicker rover-kicker">Rover profile</p>
+      <div class="seg seg-2" id="rover-seg" role="group" aria-label="Rover profile">
+        <button type="button" data-profile="cargo">Heavy Cargo</button>
+        <button type="button" data-profile="scout">Light Scout</button>
+      </div>
+
+      <div class="sliders">
+        <label for="rad-weight">Radiation weight <span id="rad-weight-val">4.0</span></label>
+        <input id="rad-weight" type="range" min="0" max="8" step="0.1" value="4" />
+
+        <label for="slope-weight">Slope sensitivity <span id="slope-weight-val">3.5</span></label>
+        <input id="slope-weight" type="range" min="0" max="8" step="0.1" value="3.5" />
+
+        <label for="dust-weight">Dust slip weight <span id="dust-weight-val">2.0</span></label>
+        <input id="dust-weight" type="range" min="0" max="6" step="0.1" value="2" />
+
+        <label for="max-slope">Max safe slope <span id="max-slope-val">25%</span></label>
+        <input id="max-slope" type="range" min="8" max="45" step="1" value="25" />
+        <p class="hint">Cells steeper than this limit are impassable. It applies to every route.</p>
+      </div>
+
+      <header class="panel-head sub">
+        <p class="kicker">Map layers</p>
+        <h2>Surface overlay</h2>
+      </header>
+      <div class="seg seg-3" id="layer-seg" role="group" aria-label="Map layer">
+        <button type="button" id="layer-surface" class="is-on" data-layer="surface">Surface</button>
+        <button type="button" id="layer-slope" data-layer="slope">Slope</button>
+        <button type="button" id="layer-risk" data-layer="risk">Rad / dust</button>
+      </div>
+      <div id="legend" class="legend legend-hidden" aria-hidden="true">
+        <span id="legend-left">Low</span>
+        <span id="legend-right">High</span>
+      </div>
+      <p id="legend-note" class="hint"></p>
+
+      <div class="sliders">
+        <label for="exaggeration">Vertical exaggeration <span id="exaggeration-val">3.0×</span></label>
+        <input id="exaggeration" type="range" min="1" max="24" step="0.1" value="3" />
+      </div>
+
+      <div class="actions">
+        <button type="button" id="dest-mode" aria-pressed="false">Set destination</button>
+        <button type="button" id="reset-view" class="ghost">Reset view</button>
+      </div>
+
+      <div class="contingency">
+        <p class="kicker">Contingency</p>
+        <button type="button" id="storm-btn" aria-pressed="false">⚡ Trigger Solar / Dust Storm</button>
+        <button type="button" id="storm-move" disabled>🎲 Relocate Storm</button>
+        <p class="hint">The storm spikes radiation and dust inside a 22-cell dome and closes the zero-visibility core. Both corridors recompute without editing the terrain file.</p>
+      </div>
+
+      <details class="notes">
+        <summary>Model notes</summary>
+        <p>
+          Traverse time, battery, and oxygen use a pressurized-rover force balance, not a fixed speed.
+          Mars gravity is 3.72 m/s². The loaded rover is 2,500 kg. Rolling resistance is
+          Crr = 0.085 + 0.14 × dust, so soft regolith sinks the wheels. The drivetrain is 82% efficient.
+          Downhill, when gravity exceeds rolling resistance, 35% of that mechanical energy is recovered
+          by regenerative braking. Cabin life support and thermal control draw a continuous 1.8 kW.
+          Flat-ground speed is 2.4 m/s and is cut by dust, grade, and a 10 kW traction limit. Two
+          crew consume 0.18 kg/h of oxygen on the flat, more on climbs and in dust. Map distance stays
+          the horizontal step; time and energy use the true 3D path. A* still routes on slope,
+          radiation, and dust. A storm raises dust inside its dome, which slows the rover and burns
+          more battery without editing the terrain file.
+        </p>
+      </details>
+    </aside>
+
+    <aside class="panel panel-right">
+      <header class="panel-head">
+        <p class="kicker">Mission control</p>
+        <h2>Traverse comparison</h2>
+      </header>
+      <p id="route-alert" class="alert" hidden></p>
+      <table class="metrics">
+        <thead>
+          <tr>
+            <th></th>
+            <th id="col-safe">Safest</th>
+            <th id="col-fast">Fastest</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Distance</th>
+            <td id="safe-distance">—</td>
+            <td id="fast-distance">—</td>
+          </tr>
+          <tr>
+            <th>Time</th>
+            <td id="safe-time">—</td>
+            <td id="fast-time">—</td>
+          </tr>
+          <tr>
+            <th>Radiation</th>
+            <td id="safe-rad">—</td>
+            <td id="fast-rad">—</td>
+          </tr>
+          <tr>
+            <th>Oxygen</th>
+            <td id="safe-o2">—</td>
+            <td id="fast-o2">—</td>
+          </tr>
+          <tr>
+            <th>Battery</th>
+            <td id="safe-kwh">—</td>
+            <td id="fast-kwh">—</td>
+          </tr>
+          <tr class="score-row">
+            <th>Safety</th>
+            <td id="safe-score" class="score">—</td>
+            <td id="fast-score" class="score">—</td>
+          </tr>
+        </tbody>
+      </table>
+      <p id="tradeoff" class="tradeoff"></p>
+
+      <div id="custom-card" class="custom-card" hidden>
+        <p class="kicker">Custom weights</p>
+        <dl class="live compact" id="custom-metrics"></dl>
+      </div>
+
+      <div class="sim-block">
+        <div class="sim-head">
+          <p class="kicker">Simulated traverse</p>
+          <strong id="active-label">Safest EVA</strong>
+        </div>
+        <div class="actions">
+          <button type="button" id="sim-btn">Simulate EVA traverse</button>
+          <label class="playback" for="playback">
+            Playback
+            <select id="playback">
+              <option value="1">Scenic</option>
+              <option value="3" selected>Mission</option>
+              <option value="8">Rapid</option>
+            </select>
+          </label>
+        </div>
+        <div class="meter" aria-hidden="true"><span id="sim-bar"></span></div>
+        <dl class="live">
+          <div><dt>Progress</dt><dd id="sim-progress">Parked at start</dd></div>
+          <div><dt>Distance</dt><dd id="sim-distance">—</dd></div>
+          <div><dt>Mission time</dt><dd id="sim-time">—</dd></div>
+          <div><dt>Dose</dt><dd id="sim-rad">—</dd></div>
+          <div><dt>Oxygen</dt><dd id="sim-o2">—</dd></div>
+          <div><dt>Battery</dt><dd id="sim-kwh">—</dd></div>
+          <div><dt>Here</dt><dd id="sim-here">—</dd></div>
+        </dl>
+      </div>
+      <p id="status-line" class="status" role="status"></p>
+      <button type="button" id="export-plan" class="ghost export-plan">↓ Export Mission Plan (.json)</button>
+    </aside>
+
+    <div id="tooltip" class="tip" hidden></div>
+    <p class="bottom-hint">Left click sets the start base · Shift+click sets the destination · Drag to orbit · Scroll to zoom</p>
+
+    <div id="loading">
+      <div class="loader">
+        <span class="worm">NASA</span>
+        <p id="loading-message">Acquiring Jezero Crater from Mars Trek…</p>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
