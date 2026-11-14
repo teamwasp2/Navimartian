@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Martian Map · EVA Route Planner</title>
     <link rel="icon" href="./favicon.ico" />
-    <script type="module" crossorigin src="./assets/index-DcqW-vuj.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-FJZ_V3Js.css">
+    <script type="module" crossorigin src="./assets/index-B1fiFDdt.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BtwAoJoz.css">
   </head>
   <body>
     <div id="viewport"></div>
@@ -43,10 +43,11 @@
       </nav>
       <div class="pills">
         <span id="source-pill" class="pill">Terrain pending</span>
+        <button type="button" id="guide-btn" class="pill guide-btn">📖 Guide & Sources</button>
         <span id="grid-pill" class="pill">150 × 150 · 235 m</span>
       </div>
     </header>
-    <p id="storm-banner" class="storm-banner" hidden>⚠️ SOLAR PARTICLE EVENT DETECTED — AUTONOMOUS REROUTE ENGAGED</p>
+    <p id="storm-banner" class="storm-banner" hidden>⚠️ SOLAR PARTICLE EVENT — GLOBAL RADIATION SURGE (+2.8 mSv/day)</p>
 
     <aside class="panel panel-left">
       <header class="panel-head">
@@ -108,9 +109,10 @@
 
       <div class="contingency">
         <p class="kicker">Contingency</p>
-        <button type="button" id="storm-btn" aria-pressed="false">⚡ Trigger Solar / Dust Storm</button>
-        <button type="button" id="storm-move" disabled>🎲 Relocate Storm</button>
-        <p class="hint">The storm spikes radiation and dust inside a 22-cell dome and closes the zero-visibility core. Both corridors recompute without editing the terrain file.</p>
+        <button type="button" id="dust-btn" aria-pressed="false">🌪️ Trigger Dust Storm</button>
+        <button type="button" id="dust-move" disabled>🎲 Relocate Dust Storm</button>
+        <button type="button" id="solar-btn" aria-pressed="false">☀️ Trigger Solar Storm (SEP)</button>
+        <p class="hint">A dust storm is a 22-cell dome: the core is impassable and the ring raises dust slip. A solar particle event adds up to 2.8 mSv/day across the whole map, a little less in low terrain. Neither one rewrites the terrain file.</p>
       </div>
 
       <details class="notes">
@@ -124,8 +126,9 @@
           Flat-ground speed is 2.4 m/s and is cut by dust, grade, and a 10 kW traction limit. Two
           crew consume 0.18 kg/h of oxygen on the flat, more on climbs and in dust. Map distance stays
           the horizontal step; time and energy use the true 3D path. A* still routes on slope,
-          radiation, and dust. A storm raises dust inside its dome, which slows the rover and burns
-          more battery without editing the terrain file.
+          radiation, and dust. A dust storm raises slip inside its dome and closes the core. A solar
+          particle event adds up to 2.8 mSv/day on every cell, slightly less where the air column is
+          thicker, without editing the terrain file.
         </p>
       </details>
     </aside>
@@ -222,6 +225,43 @@
       <div class="loader">
         <span class="worm">NASA</span>
         <p id="loading-message">Acquiring Jezero Crater from Mars Trek…</p>
+      </div>
+    </div>
+
+    <div id="guide-modal" class="guide-modal" hidden>
+      <div class="guide-card" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+        <div class="guide-head">
+          <h2 id="guide-title">Guide & Sources</h2>
+          <button type="button" id="guide-close" aria-label="Close">✕</button>
+        </div>
+        <div class="seg guide-tabs" id="guide-tabs" role="tablist" aria-label="Guide sections">
+          <button type="button" id="guide-tab-operator" class="is-on" role="tab" aria-selected="true" aria-controls="guide-operator" data-guide="operator">Operator Guide</button>
+          <button type="button" id="guide-tab-sources" role="tab" aria-selected="false" aria-controls="guide-sources" data-guide="sources">Scientific Models</button>
+        </div>
+        <div id="guide-operator" role="tabpanel">
+          <ol>
+            <li><strong>Mission sites.</strong> Use the top bar to switch Jezero Crater, Valles Marineris, Arcadia Planitia, Gale Crater, and Olympus Mons. Each load pulls that site’s terrain and snaps the beacons to its default sortie.</li>
+            <li><strong>Waypoints.</strong> Left-click the terrain to set the start base. Shift+click, or turn on "Set destination" and click, to place the target.</li>
+            <li><strong>Corridors and presets.</strong> "Safest" draws the cyan tube. "Fastest" draws the dashed amber line. "Custom" uses the weight sliders. "Heavy Cargo" sets a 15% slope limit. "Light Scout" sets a 25% limit and weights radiation more heavily.</li>
+            <li><strong>Overlays.</strong> "Surface", "Slope", and "Rad / dust" change the drape. Vertical exaggeration stretches relief so plains and canyons both read.</li>
+            <li><strong>Contingencies.</strong> "Trigger Dust Storm" drops a local dome and routes around its zero-visibility core. "Relocate Dust Storm" moves that dome. "Trigger Solar Storm (SEP)" raises radiation across the whole region. Both can be on together.</li>
+            <li><strong>Playback and export.</strong> "Simulate EVA traverse" drives the rover on the physics clock. "Export Mission Plan (.json)" downloads the site, hazards, comparison, and lat/lon waypoints.</li>
+          </ol>
+        </div>
+        <div id="guide-sources" role="tabpanel" hidden>
+          <h3>Surface imagery</h3>
+          <p>NASA Mars Trek WMTS, equirectangular tiles: Mars_Viking_MDIM21_ClrMosaic_global_232m at zoom 7.</p>
+          <h3>Topography</h3>
+          <p>Mars_MOLA_blend200ppx_HRSC_Shade_clon0dd_200mpp_lzw at zoom 8, and the MOLA grayscale DEM Mars_MGS_MOLA_DEM_mosaic_global_463m_8 at zoom 5. The 150×150 grid is Gaussian-smoothed (sigma 1.15) and pinned to each site’s elevation envelope: Jezero −2,906 to −2,178 m, Valles Marineris −4,800 to 1,200 m, Arcadia −4,100 to −3,850 m, Gale −4,500 to 500 m, Olympus Mons 18,000 to 21,229 m.</p>
+          <h3>Radiation</h3>
+          <p>Anchored to NASA Curiosity RAD surface measurements, about 0.64 mSv/day at Gale and Jezero. The rate rises where the air column is thinner, and a solar particle event adds up to 2.8 mSv/day, slightly less in lower terrain. Dose is that rate times the hours driven, divided by 24.</p>
+          <h3>Dust and terramechanics</h3>
+          <p>Dust slip is higher on flat, low basins. The field follows the pattern in Perseverance MEDA dust optical depth and Mars Odyssey THEMIS thermal inertia: soft ground raises rolling resistance, Crr = 0.085 + 0.14 × dust.</p>
+          <h3>Rover physics and life support</h3>
+          <p>Mars gravity is 3.72 m/s². The pressurized rover is 2,500 kg, on the NASA Space Exploration Vehicle scale. The drivetrain is 82% efficient, downhill regeneration returns 35%, and the cabin draws a continuous 1.8 kW.</p>
+          <h3>Pathfinding</h3>
+          <p>Eight-direction A* with an octile heuristic. Step cost is distance times slope, radiation, and dust. Cells steeper than the slope limit, and the dust-storm core, are impassable.</p>
+        </div>
       </div>
     </div>
 
