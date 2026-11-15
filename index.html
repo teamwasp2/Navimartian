@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Martian Map · EVA Route Planner</title>
     <link rel="icon" href="./favicon.ico" />
-    <script type="module" crossorigin src="./assets/index-BFQK7StW.js"></script>
+    <script type="module" crossorigin src="./assets/index-DL77Te5Z.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-B8YI1l1a.css">
   </head>
   <body>
@@ -113,7 +113,7 @@
         <button type="button" id="dust-btn" aria-pressed="false">🌪️ Trigger Dust Storm</button>
         <button type="button" id="dust-move" disabled>🎲 Relocate Dust Storm</button>
         <button type="button" id="solar-btn" aria-pressed="false">☀️ Trigger Solar Storm (SEP)</button>
-        <p class="hint">A dust storm is a 22-cell dome and the whole dome is impassable, including the outer ring. Both corridors route around it. A solar particle event adds up to 2.8 mSv/day across the whole map, a little less in low terrain. Neither one rewrites the terrain file.</p>
+        <p class="hint">A dust storm is a 22-cell dome and the whole dome is impassable, including the outer ring. Both corridors route around it. A solar particle event adds 2.8 mSv/day at the highest cell and less below it, on an 11.1 km scale height. Neither one rewrites the terrain file.</p>
       </div>
 
       <details class="notes">
@@ -124,14 +124,17 @@
           Crr = 0.085 + 0.14 × dust, so soft regolith sinks the wheels. The drivetrain is 82% efficient.
           Downhill, when gravity exceeds rolling resistance, 35% of that mechanical energy is recovered
           by regenerative braking. Cabin life support and thermal control draw a continuous 1.8 kW.
-          Flat-ground speed is 2.4 m/s and is cut by dust, grade, and a 10 kW traction limit. Two
+          Flat-ground speed is 2.4 m/s, reduced by dust slip. A climb slows only when the 10 kW
+          traction bus cannot hold that speed. Two
           crew consume 0.18 kg/h of oxygen on the flat, more on climbs and in dust. Map distance stays
-          the horizontal step; time and energy use the true 3D path. A* still routes on slope,
-          radiation, and dust. Grade percent is rise over run on the real east-west and north-south
+          the horizontal step; time and energy use the true 3D path. Regenerative braking is credited
+          in full when the slope exceeds rolling resistance. Fastest routing minimizes
+          that travel time. Safest routing minimizes cumulative dose. Custom weights still trade
+          along-track grade, radiation, and dust. Grade percent is rise over run on the real east-west and north-south
           spacing, and the drawn route is laid back onto that surface. A dust storm closes its whole
           dome, outer ring included, and both corridors stay outside it. A solar
-          particle event adds up to 2.8 mSv/day on every cell, slightly less where the air column is
-          thicker, without editing the terrain file.
+          particle event adds 2.8 mSv/day at the highest cell and less where the 11.1 km air column
+          is thicker, without editing the terrain file.
         </p>
       </details>
     </aside>
@@ -249,9 +252,9 @@
           <ol>
             <li><strong>Mission sites.</strong> Use the top bar to switch Jezero Crater, Valles Marineris, Arcadia Planitia, Gale Crater, and Olympus Mons. Each load pulls that site’s terrain and snaps the beacons to its default sortie.</li>
             <li><strong>Waypoints.</strong> Left-click the terrain to set the start base. Shift+click, or turn on "Set destination" and click, to place the target.</li>
-            <li><strong>Corridors and presets.</strong> "Safest" draws the solid cyan tube and is the plan to fly when it scores higher. "Fastest" draws the magenta dashed line beside it. "Custom" uses the weight sliders. "Heavy Cargo" sets a 15% slope limit. "Light Scout" sets a 25% limit and weights radiation more heavily.</li>
+            <li><strong>Corridors and presets.</strong> "Safest" draws the solid ice tube and minimizes cumulative dose. "Fastest" draws the magenta dashed line and minimizes travel time. "Custom" uses the weight sliders. "Heavy Cargo" sets a 15% slope limit. "Light Scout" sets a 25% limit and weights radiation more heavily.</li>
             <li><strong>Overlays.</strong> "Surface", "Slope", and "Rad / dust" change the drape. Vertical exaggeration only stretches the picture. Slope % stays the true ground grade.</li>
-            <li><strong>Contingencies.</strong> "Trigger Dust Storm" drops a local dome. The whole dome is impassable, and the status line reports when both corridors stay outside it. "Relocate Dust Storm" moves that dome. "Trigger Solar Storm (SEP)" raises radiation across the whole region. Both can be on together.</li>
+            <li><strong>Contingencies.</strong> "Trigger Dust Storm" drops a local dome. The whole dome is impassable, and the status line reports when both corridors stay outside it. "Relocate Dust Storm" moves that dome. "Trigger Solar Storm (SEP)" raises radiation across the whole region. Both can be on together. If either hazard changes while the rover is moving, both corridors replan from the last cell the rover reached.</li>
             <li><strong>Playback and export.</strong> "Simulate EVA traverse" drives the rover on the physics clock. "Export Mission Plan (.json)" downloads the site, hazards, comparison, and lat/lon waypoints.</li>
           </ol>
         </div>
@@ -261,13 +264,13 @@
           <h3>Topography</h3>
           <p>Mars_MOLA_blend200ppx_HRSC_Shade_clon0dd_200mpp_lzw at zoom 8, and the MOLA grayscale DEM Mars_MGS_MOLA_DEM_mosaic_global_463m_8 at zoom 5. The 150×150 grid is Gaussian-smoothed (sigma 1.15) and pinned to each site’s elevation envelope: Jezero −2,906 to −2,178 m, Valles Marineris −4,800 to 1,200 m, Arcadia −4,100 to −3,850 m, Gale −4,500 to 500 m, Olympus Mons 18,000 to 21,229 m.</p>
           <h3>Radiation</h3>
-          <p>Anchored to NASA Curiosity RAD surface measurements, about 0.64 mSv/day at Gale and Jezero. The rate rises where the air column is thinner, and a solar particle event adds up to 2.8 mSv/day, slightly less in lower terrain. Dose is that rate times the hours driven, divided by 24.</p>
+          <p>Anchored to NASA Curiosity RAD surface measurements, about 0.64 mSv/day at Gale and Jezero. The stored rate already rises where the air column is thinner, using an 11.1 km scale height. A solar particle event adds 2.8 mSv/day at the highest cell and less below it with the same scale height. Dose is that rate times the hours driven, divided by 24.</p>
           <h3>Dust and terramechanics</h3>
           <p>Dust slip is higher on flat, low basins. The field follows the pattern in Perseverance MEDA dust optical depth and Mars Odyssey THEMIS thermal inertia: soft ground raises rolling resistance, Crr = 0.085 + 0.14 × dust.</p>
           <h3>Rover physics and life support</h3>
           <p>Mars gravity is 3.72 m/s². The pressurized rover is 2,500 kg, on the NASA Space Exploration Vehicle scale. The drivetrain is 82% efficient, downhill regeneration returns 35%, and the cabin draws a continuous 1.8 kW.</p>
           <h3>Pathfinding</h3>
-          <p>Eight-direction A* on true ground spacing. Step cost is meters times slope, radiation, and dust. Cells steeper than the slope limit, and every cell inside the dust-storm dome, are impassable.</p>
+          <p>Eight-direction A* on true ground spacing. Fastest minimizes 3D travel time at dust-limited speed, capped by the 10 kW bus. Safest minimizes cumulative dose, with a small along-track grade tie-break. Custom weights still multiply meters by along-track grade, radiation, and dust. Cells steeper than the slope limit, and every cell inside the dust-storm dome, are impassable. The dome is a circle in meters, and a hazard that appears mid-traverse replans from the rover.</p>
         </div>
       </div>
     </div>
