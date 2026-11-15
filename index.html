@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Navimartian · EVA Route Planner</title>
     <link rel="icon" href="./favicon.ico" />
-    <script type="module" crossorigin src="./assets/index-CCQhPK19.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BpjEVXyy.css">
+    <script type="module" crossorigin src="./assets/index-DAqCpNlZ.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CcGDqSgS.css">
   </head>
   <body>
     <div id="viewport"></div>
@@ -284,8 +284,9 @@
           <button type="button" id="guide-close" aria-label="Close">✕</button>
         </div>
         <div class="seg guide-tabs" id="guide-tabs" role="tablist" aria-label="Guide sections">
-          <button type="button" id="guide-tab-operator" class="is-on" role="tab" aria-selected="true" aria-controls="guide-operator" data-guide="operator">Operator Guide</button>
-          <button type="button" id="guide-tab-sources" role="tab" aria-selected="false" aria-controls="guide-sources" data-guide="sources">Scientific Models</button>
+          <button type="button" id="guide-tab-operator" class="is-on" role="tab" aria-selected="true" aria-controls="guide-operator" data-guide="operator">Operator</button>
+          <button type="button" id="guide-tab-sources" role="tab" aria-selected="false" aria-controls="guide-sources" data-guide="sources">Models</button>
+          <button type="button" id="guide-tab-bibliography" role="tab" aria-selected="false" aria-controls="guide-bibliography" data-guide="bibliography">Bibliography</button>
         </div>
         <div id="guide-operator" role="tabpanel">
           <ol>
@@ -298,6 +299,7 @@
           </ol>
         </div>
         <div id="guide-sources" role="tabpanel" hidden>
+          <p class="bib-note">Each measurement, data product, and planner choice below is cited in full on the Bibliography tab. A planner choice is a number this app selected. It is not a NASA measurement.</p>
           <h3>Surface imagery</h3>
           <p>NASA Mars Trek WMTS, equirectangular tiles: Mars_Viking_MDIM21_ClrMosaic_global_232m at zoom 7.</p>
           <h3>Topography</h3>
@@ -309,7 +311,252 @@
           <h3>Rover physics and life support</h3>
           <p>Mars gravity is 3.72 m/s². The pressurized rover is 2,500 kg, on the NASA Space Exploration Vehicle scale. The drivetrain is 82% efficient, downhill regeneration returns 35%, and the cabin draws a continuous 1.8 kW.</p>
           <h3>Pathfinding</h3>
-          <p>Eight-direction A* on true ground spacing. Fastest minimizes 3D travel time at dust-limited speed, capped by the 10 kW bus. Safest minimizes cumulative dose, with a small along-track grade tie-break. Custom weights still multiply meters by along-track grade, radiation, and dust. Cells steeper than the slope limit, and every cell inside the dust-storm dome, are impassable. The dome is a circle in meters, and a hazard that appears mid-traverse replans from the rover.</p>
+          <p>Eight-direction A* on true ground spacing. Fastest minimizes 3D travel time at dust-limited speed, capped by the 10 kW bus. Safest minimizes cumulative dose, with a small along-track grade tie-break. Custom weights still multiply meters by along-track grade, radiation, and dust. Cells steeper than the slope limit, and every cell inside the dust-storm dome, are impassable. The dome is a circle in meters, and a hazard that appears mid-traverse replans from the rover. The safety score is a display index. It is not the quantity A* minimizes.</p>
+        </div>
+        <div id="guide-bibliography" role="tabpanel" hidden>
+          <p class="bib-note">Citations are grouped by what they support. <span class="bib-kind kind-measured">Measured</span> is a published observation. <span class="bib-kind kind-product">Data product</span> is a map or service this planner downloads. <span class="bib-kind kind-method">Method</span> is the algorithm or the standard behind a calculation. <span class="bib-kind kind-planner">Planner choice</span> is a number chosen for this app. Those choices are listed with the same detail as the measurements so they are not mistaken for them.</p>
+
+          <h3>Map service and imagery</h3>
+          <ol class="bib-list">
+            <li>
+              <span class="bib-kind kind-product">Data product</span>
+              NASA Jet Propulsion Laboratory and NASA Ames Research Center. Mars Trek.
+              <a href="https://trek.nasa.gov/mars/" target="_blank" rel="noopener noreferrer">https://trek.nasa.gov/mars/</a>
+              <p class="bib-use">All five sites are read from the equirectangular tile pyramid, profile <code>default028mm</code>, not Web Mercator. The request used here is <code>https://trek.nasa.gov/tiles/Mars/EQ/{layer}/1.0.0/default/default028mm/{z}/{y}/{x}.{ext}</code>. At zoom z the pyramid has 2<sup>z+1</sup> columns and 2<sup>z</sup> rows. Tile x is <code>((lon + 180) / 360) × columns</code>. Tile y is <code>((90 − lat) / 180) × rows</code>. Zoom 8 is requested first, about 230 m per pixel. A layer whose pyramid stops earlier is taken at the highest zoom that layer actually publishes.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-method">Method</span>
+              Open Geospatial Consortium. (2010). <em>OpenGIS Web Map Tile Service Implementation Standard</em> (OGC 07-057r7).
+              <a href="https://www.ogc.org/standards/wmts/" target="_blank" rel="noopener noreferrer">https://www.ogc.org/standards/wmts/</a>
+              <p class="bib-use">Mars Trek speaks this tile protocol. Earth WMTS clients often assume a Web Mercator pyramid. This planner does not. Latitude and longitude stay equirectangular, and east-west meters are then shortened by the cosine of the site’s mid-latitude.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-product">Data product</span>
+              U.S. Geological Survey Astrogeology Science Center. (2009). <em>Mars Viking Colorized Global Mosaic 232 m</em> (MDIM 2.1, recolored by NASA Ames). Product <code>Mars_Viking_MDIM21_ClrMosaic_global_232m</code>.
+              <a href="https://astrogeology.usgs.gov/search/map/mars_viking_colorized_global_mosaic_232m" target="_blank" rel="noopener noreferrer">USGS Astropedia record</a>
+              <p class="bib-use">This is the surface drape, fetched at Trek zoom 7. The mosaic is 256 pixels per degree, about 232 m per pixel at the equator. MDIM 2.1 is controlled to Mars Orbiter Laser Altimeter elevations. USGS estimates the position of a feature at roughly one pixel, about 200 m, against about 3 km for MDIM 2.0 and more than 6 km for MDIM 1.0. The color is a drape only. It does not enter slope, dose, or energy.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Neukum, G., Jaumann, R., and the HRSC Co-Investigator and Experiment Team. (2004). HRSC: The High Resolution Stereo Camera of Mars Express. In A. Wilson (Ed.), <em>Mars Express: The Scientific Payload</em> (ESA SP-1240, pp. 17–35). European Space Agency.
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Gwinner, K., Jaumann, R., and the HRSC Co-Investigator Team. (2016). The High Resolution Stereo Camera (HRSC) of Mars Express and its approach to science analysis and mapping for Mars and its satellites. <em>Planetary and Space Science, 126</em>, 93–138.
+              <a href="https://doi.org/10.1016/j.pss.2016.02.014" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.pss.2016.02.014</a>
+              <p class="bib-use">The shaded-relief picture requested from Trek is <code>Mars_MOLA_blend200ppx_HRSC_Shade_clon0dd_200mpp_lzw</code> at zoom 8. If that layer is missing, the fetch script tries <code>Mars_MOLA_ClrShade_global_463m</code> and then <code>Mars_MGS_MOLA_ClrShade_merge_global_463m</code>. The shade is a picture of the relief. Heights used for grade, time, and energy come from the elevation grid, not from the shade.</p>
+            </li>
+          </ol>
+
+          <h3>Topography, radius, gravity, and air</h3>
+          <ol class="bib-list">
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Smith, D. E., Zuber, M. T., Solomon, S. C., Phillips, R. J., Head, J. W., Garvin, J. B., Banerdt, W. B., Muhleman, D. O., Pettengill, G. H., Neumann, G. A., Lemoine, F. G., Abshire, J. B., Aharonson, O., Brown, C. D., Hauck, S. A., Ivanov, A. B., McGovern, P. J., Zwally, H. J., and Duxbury, T. C. (1999). The global topography of Mars and implications for surface evolution. <em>Science, 284</em>(5419), 1495–1503.
+              <a href="https://doi.org/10.1126/science.284.5419.1495" target="_blank" rel="noopener noreferrer">https://doi.org/10.1126/science.284.5419.1495</a>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Smith, D. E., Zuber, M. T., Frey, H. V., Garvin, J. B., Head, J. W., Muhleman, D. O., Pettengill, G. H., Phillips, R. J., Solomon, S. C., Zwally, H. J., Banerdt, W. B., Duxbury, T. C., Golombek, M. P., Lemoine, F. G., Neumann, G. A., Rowlands, D. D., Aharonson, O., Ford, P. G., Ivanov, A. B., Johnson, C. L., McGovern, P. J., Abshire, J. B., Afzal, R. S., and Sun, X. (2001). Mars Orbiter Laser Altimeter: Experiment summary after the first year of global mapping of Mars. <em>Journal of Geophysical Research: Planets, 106</em>(E10), 23689–23722.
+              <a href="https://doi.org/10.1029/2000JE001364" target="_blank" rel="noopener noreferrer">https://doi.org/10.1029/2000JE001364</a>
+              <p class="bib-use">MOLA, on Mars Global Surveyor, is the altimeter behind the elevation grid. The 2001 paper is the experiment summary after the first year of global mapping. Elevations are relative to the areoid.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-product">Data product</span>
+              U.S. Geological Survey. <em>Mars MGS MOLA DEM 463 m</em>. Trek layer <code>Mars_MGS_MOLA_DEM_mosaic_global_463m_8</code>, fetched at zoom 5 as an 8-bit grayscale.
+              <a href="https://astrogeology.usgs.gov/search/map/mars_mgs_mola_dem_463m" target="_blank" rel="noopener noreferrer">USGS Astropedia record</a>
+              <p class="bib-use">Luminance is stretched onto a fixed elevation envelope for each one-degree window, then smoothed. The envelopes used are Jezero −2,906 to −2,178 m, Valles Marineris −4,800 to 1,200 m, Arcadia Planitia −4,100 to −3,850 m, Gale −4,500 to 500 m, and Olympus Mons 18,000 to 21,229 m. Those envelopes are the vertical range this planner pins to the window. They are not a claim that every published MOLA cell inside the box sits on those two numbers. The smooth is two separable 5-tap passes whose combined sigma is 1.15, so the zoom-5 grid does not stair-step when the picture is stretched vertically. Slope is recomputed after that stretch.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-method">Method</span>
+              Grade is the true ground slope, not the slope of the exaggerated picture. Central differences use separate east-west and north-south spacing. Percent grade is the gradient magnitude times 100. A step’s travel grade, used for time and energy, is the rise of that step divided by its horizontal run. The hard impassable limit uses the steeper of the two cell gradients. Vertical exaggeration, which runs from 1× to 24× and opens near 6.6× at Jezero, changes only the drawn mesh.
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Williams, D. R. <em>Mars Fact Sheet</em>. NASA Goddard Space Flight Center.
+              <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html" target="_blank" rel="noopener noreferrer">https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html</a>
+              Jet Propulsion Laboratory. Planetary physical parameters.
+              <a href="https://ssd.jpl.nasa.gov/planets/phys_par.html" target="_blank" rel="noopener noreferrer">https://ssd.jpl.nasa.gov/planets/phys_par.html</a>
+              <p class="bib-use">The fact sheet’s volumetric mean radius is 3,389.5 km. That is the radius in the ground-spacing formula: meters per degree = 2πR / 360, east-west spacing then multiplied by cos(mid-latitude). The current fact sheet lists mean surface gravity as 3.73 m/s². JPL lists equatorial gravity as 3.71 m/s². This planner uses 3.72 m/s², between those two. The current fact sheet lists atmospheric scale height as 11.0 km and a surface density near 0.016 kg/m³. The hazard grids and the solar-storm column use 11.1 km, the value carried on earlier editions of the same sheet. Aero drag is left out of the force balance: at 2.4 m/s and a surface density of about 0.02 kg/m³ it is a fraction of a newton, beside roughly 800 N of rolling resistance on flat ground.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-method">Method</span>
+              Archinal, B. A., and the IAU Working Group on Cartographic Coordinates and Rotational Elements. (2018). Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015. <em>Celestial Mechanics and Dynamical Astronomy, 130</em>, 22.
+              <p class="bib-use">MDIM 2.1 and Mars Trek use planetocentric latitude and east longitude, the frame adopted from the IAU 2000 constants. Waypoints exported from this planner are in that same frame. A dataset on planetographic latitude would need to be resampled before it would overlie these tiles.</p>
+            </li>
+          </ol>
+
+          <h3>Radiation</h3>
+          <ol class="bib-list">
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Hassler, D. M., Zeitlin, C., Wimmer-Schweingruber, R. F., Ehresmann, B., Rafkin, S., and the MSL Science Team. (2014). Mars’ surface radiation environment measured with the Mars Science Laboratory’s Curiosity rover. <em>Science, 343</em>(6169), 1244797.
+              <a href="https://doi.org/10.1126/science.1244797" target="_blank" rel="noopener noreferrer">https://doi.org/10.1126/science.1244797</a>
+              <p class="bib-use">On the floor of Gale, about −4.4 km relative to the areoid, the first 300 sols near the maximum of solar cycle 24 gave an absorbed dose of 0.210 ± 0.040 mGy/day and a dose equivalent of 0.64 ± 0.12 mSv/day. The mean quality factor on the surface was about 3.05. The atmospheric column over those sols was about 21 g/cm². The 0.64 mSv/day figure is the baseline stored for Gale and for Jezero. It is a solar-maximum measurement. It is not a solar-minimum upper bound, and it is not a career limit.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Zeitlin, C., Hassler, D. M., Cucinotta, F. A., Ehresmann, B., Wimmer-Schweingruber, R. F., and the MSL Science Team. (2013). Measurements of energetic particle radiation in transit to Mars on the Mars Science Laboratory. <em>Science, 340</em>(6136), 1080–1084.
+              <a href="https://doi.org/10.1126/science.1235989" target="_blank" rel="noopener noreferrer">https://doi.org/10.1126/science.1235989</a>
+              <p class="bib-use">The cruise dose equivalent inside the spacecraft was 1.84 ± 0.30 mSv/day. Five solar particle events during the 253-day cruise contributed about five percent of that cruise total. This planner does not model cruise. The cruise number is cited so it is not used in place of the surface number.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Rafkin, S. C. R., Zeitlin, C., Ehresmann, B., Hassler, D., Guo, J., Köhler, J., Wimmer-Schweingruber, R. F., and the MSL Science Team. (2014). Diurnal variations of energetic particle radiation at the surface of Mars as observed by the Mars Science Laboratory Radiation Assessment Detector. <em>Journal of Geophysical Research: Planets, 119</em>, 1345–1358.
+              <a href="https://doi.org/10.1002/2013JE004525" target="_blank" rel="noopener noreferrer">https://doi.org/10.1002/2013JE004525</a>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Guo, J., Zeitlin, C., Wimmer-Schweingruber, R. F., Rafkin, S., Hassler, D. M., and colleagues. (2015). Modeling the variations of dose rate measured by RAD during the first MSL Martian year: 2012–2014. <em>The Astrophysical Journal, 810</em>(1), 24.
+              <a href="https://doi.org/10.1088/0004-637X/810/1/24" target="_blank" rel="noopener noreferrer">https://doi.org/10.1088/0004-637X/810/1/24</a>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Guo, J., Slaba, T. C., Zeitlin, C., Wimmer-Schweingruber, R. F., and colleagues. (2017). Dependence of the Martian radiation environment on atmospheric depth: Modeling and measurement. <em>Journal of Geophysical Research: Planets, 122</em>, 329–341.
+              <a href="https://doi.org/10.1002/2016JE005206" target="_blank" rel="noopener noreferrer">https://doi.org/10.1002/2016JE005206</a>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Guo, J., Zeitlin, C., Wimmer-Schweingruber, R. F., Hassler, D. M., and colleagues. (2021). Radiation environment for future human exploration on the surface of Mars: The current understanding based on MSL/RAD dose measurements. <em>The Astronomy and Astrophysics Review, 29</em>, 8.
+              <a href="https://doi.org/10.1007/s00159-021-00136-5" target="_blank" rel="noopener noreferrer">https://doi.org/10.1007/s00159-021-00136-5</a>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Zhang, J., Guo, J., Dobynde, M. I., Wang, Y., and Wimmer-Schweingruber, R. F. (2022). From the top of Martian Olympus to deep craters and beneath: Mars radiation environment under different atmospheric and regolith depths. <em>Journal of Geophysical Research: Planets, 127</em>, e2021JE007157.
+              <a href="https://doi.org/10.1029/2021JE007157" target="_blank" rel="noopener noreferrer">https://doi.org/10.1029/2021JE007157</a>
+              <p class="bib-use">RAD dose rate falls when the air column deepens, within a day and across a season. Solar modulation moves the dose more than the seasonal pressure swing does. Guo and colleagues found the seasonal pressure effect near a tenth of a millisievert per day in that first Mars year, while solar minimum can push the Gale dose equivalent well above the 0.64 mSv/day solar-maximum anchor, toward about 1 mSv/day in their empirical range. Zhang and colleagues carry the same atmospheric-depth dependence from the Olympus summit to the floors of deep craters. This planner keeps the direction of that result and does not copy their transport code.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-planner">Planner choice</span>
+              The stored background field is built once and is not rewritten when a storm is toggled. For each cell, pressure = exp(−(elevation − p15) / 11100), where p15 is the 15th-percentile elevation of that site. The atmospheric factor is pressure raised to −0.35, after pressure is clipped to the range 0.35–2.5. Radiation is then baseline × that factor, plus 0.48 × a ridge term, minus a small dust shelter, and clipped to 0.40–2.60 mSv/day. The ridge term mixes local prominence with steepness. The −0.35 exponent is a choice in the same direction as the RAD shielding result. It is not a regression coefficient reported by Hassler, Rafkin, or Guo.
+              <p class="bib-use">Baselines, in mSv/day: Jezero 0.64, Gale 0.64, Valles Marineris 0.58, Arcadia Planitia 0.72, Olympus Mons 0.88. The two deep sites sit lower because the air column is thicker. Olympus sits higher because the air column is thinner. On a driving step, dose in mSv is the average of the two cells’ rates, times the hours on that step, divided by 24.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-planner">Planner choice</span>
+              A solar particle event in this planner adds 2.8 mSv/day at the highest cell on the map. Lower cells see 2.8 × exp(0.35 × (elevation − highest) / 11100). On a map with only 250 m of relief, such as Arcadia, that factor barely moves, from 2.800 down to about 2.778. It is not stretched so the lowest cell is 18% below the highest. The banner text is fixed: “SOLAR PARTICLE EVENT — GLOBAL RADIATION SURGE (+2.8 mSv/day).”
+              <p class="bib-use">2.8 mSv/day is a moderate planning surge for a short traverse. It is not a reconstruction of a named historical event. Events behind thin shielding can be much larger than this, and the cruise record in Zeitlin and colleagues shows that a few events can matter even when their share of a long cruise is small. The surge is added on top of the stored background. It does not edit the terrain file. It can be on at the same time as the dust dome.</p>
+            </li>
+          </ol>
+
+          <h3>Dust, soil, and the rolling-resistance stand-in</h3>
+          <ol class="bib-list">
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Christensen, P. R., Jakosky, B. M., Kieffer, H. H., Malin, M. C., McSween, H. Y., Jr., Nealson, K., Mehall, G. L., Silverman, S. H., Ferry, S., Caplinger, M., and Ravine, M. (2004). The Thermal Emission Imaging System (THEMIS) for the Mars 2001 Odyssey Mission. <em>Space Science Reviews, 110</em>, 85–130.
+              <a href="https://doi.org/10.1023/B:SPAC.0000021008.16305.94" target="_blank" rel="noopener noreferrer">https://doi.org/10.1023/B:SPAC.0000021008.16305.94</a>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Fergason, R. L., Christensen, P. R., and Kieffer, H. H. (2006). High-resolution thermal inertia derived from the Thermal Emission Imaging System (THEMIS): Thermal model and applications. <em>Journal of Geophysical Research: Planets, 111</em>, E12004.
+              <a href="https://doi.org/10.1029/2006JE002735" target="_blank" rel="noopener noreferrer">https://doi.org/10.1029/2006JE002735</a>
+              <p class="bib-use">Thermal inertia separates rock and duricrust from fine, soft ground. This planner does not ingest a THEMIS mosaic. The dust field only follows that pattern: soft ground is placed on flat, low basins, and ridges are kept firmer.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Rodriguez-Manfredi, J. A., de la Torre Juárez, M., and the MEDA team. (2021). The Mars Environmental Dynamics Analyzer, MEDA. A suite of environmental sensors for the Mars 2020 mission. <em>Space Science Reviews, 217</em>, 48.
+              <a href="https://doi.org/10.1007/s11214-021-00816-9" target="_blank" rel="noopener noreferrer">https://doi.org/10.1007/s11214-021-00816-9</a>
+              <p class="bib-use">MEDA on Perseverance measures atmospheric dust optical depth at Jezero, among other weather quantities. The stored dust grid is not a MEDA time series and not an optical-depth map. It is a unitless slip field from 0 to 1.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-planner">Planner choice</span>
+              Dust baselines: Jezero 0.35, Gale 0.42, Valles Marineris 0.45, Arcadia Planitia 0.68, Olympus Mons 0.25. The cell value rises on ground that is both low and flat, and it is cut in half of the ridge term on steep prominent ground. The result is clipped to 0.04–0.96. A triggered dust storm is a hard disk of radius 22 cells. In meters that radius is 22 × the smaller of the east-west and north-south cell sizes. Every cell inside the disk is impassable, including the rim. The disk does not edit the terrain file. Both corridors are required to stay outside it.
+            </li>
+            <li>
+              <span class="bib-kind kind-method">Method</span>
+              Bekker, M. G. (1969). <em>Introduction to Terrain-Vehicle Systems</em>. University of Michigan Press.
+              Wong, J. Y. (2008). <em>Theory of Ground Vehicles</em> (4th ed.). John Wiley &amp; Sons.
+              <p class="bib-use">Those books are the terramechanics a full wheel-soil model would use: sinkage, slip, and bulldozing from soil strength. This planner does not run that model. There is no cohesion, friction angle, or wheel radius in the cost.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-method">Method</span>
+              Heverly, M., Matthews, J., Lin, J., Fuller, D., Maimone, M., Biesiadecki, J., and Leichty, J. (2013). Traverse performance characterization for the Mars Science Laboratory rover. <em>Journal of Field Robotics, 30</em>(6), 835–846.
+              <a href="https://doi.org/10.1002/rob.21481" target="_blank" rel="noopener noreferrer">https://doi.org/10.1002/rob.21481</a>
+              <p class="bib-use">Cited as the class of measurement this force balance is not. Curiosity is an unpressurized science rover. The vehicle in this planner is a pressurized cabin on the Space Exploration Vehicle scale.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-planner">Planner choice</span>
+              Rolling resistance coefficient Crr = 0.085 + 0.14 × dust, with dust averaged across the two cells of the step. Rolling force is mass × 3.72 × Crr × cos θ, and cos θ is not allowed to go negative. Grade force is mass × 3.72 × sin θ, negative on a descent. Mechanical work is that net force times the true 3D step length. Uphill and flat work is drawn from the battery at 1 / 0.82. Downhill work, once gravity exceeds rolling resistance, returns 35% of the mechanical energy. There is no per-step energy floor, so a coasting step can credit the battery. A 100 m descent over a 230 m run returns about 0.020 kWh before cabin load.
+              <p class="bib-use">Flat speed is 2.4 m/s, cut by dust slip to 2.4 × (1 − 0.35 × dust). Grade does not apply a second slowdown. If the 10 kW traction bus cannot hold that speed, speed falls to (10,000 W × 0.82) / force. On this rover the bus rarely binds below about a 30% grade. The 0.085, the 0.14, the 0.35 slip factor, the 82% drivetrain, the 35% regeneration, and the 10 kW bus are planner parameters. They are not a published Crr for a named Martian soil.</p>
+            </li>
+          </ol>
+
+          <h3>Vehicle and life support</h3>
+          <ol class="bib-list">
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              NASA. (2010). <em>Space Exploration Vehicle</em> fact sheet.
+              <a href="https://www.nasa.gov/wp-content/uploads/2015/08/464826main_sev_factsheet_508.pdf" target="_blank" rel="noopener noreferrer">NASA SEV fact sheet (PDF)</a>
+              <p class="bib-use">The surface concept carries a crew of two, with room for four in an emergency, and can travel at about 10 km/h. The fact sheet lists the surface concept at 6,600 lb, about 3,000 kg, with a 2,200 lb payload. This planner’s loaded mass is 2,500 kg, in that class and below the fact-sheet vehicle weight. This planner’s nominal speed is 2.4 m/s, which is 8.6 km/h, under the concept speed of about 10 km/h. The fact sheet does not give an 82% drivetrain, a 35% regenerative return, a 10 kW bus, or a 1.8 kW cabin draw. Those four numbers are planner parameters on a vehicle of this class.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-planner">Planner choice</span>
+              Cabin life support and thermal control draw a continuous 1,800 W for as long as the step takes. That energy is added to propulsion energy and reported in kWh. It is not a measured SEV bus load.
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Anderson, M. S., Ewert, M. K., and Keener, J. F. (2018). <em>Life Support Baseline Values and Assumptions Document</em> (NASA/TP-2015-218570/REV1). NASA Johnson Space Center.
+              <a href="https://ntrs.nasa.gov/citations/20180001338" target="_blank" rel="noopener noreferrer">https://ntrs.nasa.gov/citations/20180001338</a>
+              <p class="bib-use">The BVAD nominal oxygen consumption for intravehicular activity is 0.816 kg per crewmember per day. Two crewmembers at that rate are about 0.068 kg/h. This planner charges 0.18 kg/h on flat ground, about 4.32 kg/day for the cabin, which is roughly two and a half times the pair’s resting metabolic rate. The step then multiplies that rate by (1 + 0.35 × max(0, sin θ) + 0.15 × dust), so a climb and soft ground consume more. The 0.18 kg/h figure is a traverse consumable with workload margin. It is not the BVAD resting rate, and it should not be quoted as one.</p>
+            </li>
+          </ol>
+
+          <h3>Route search and the safety index</h3>
+          <ol class="bib-list">
+            <li>
+              <span class="bib-kind kind-method">Method</span>
+              Hart, P. E., Nilsson, N. J., and Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. <em>IEEE Transactions on Systems Science and Cybernetics, 4</em>(2), 100–107.
+              <a href="https://doi.org/10.1109/TSSC.1968.300136" target="_blank" rel="noopener noreferrer">https://doi.org/10.1109/TSSC.1968.300136</a>
+            </li>
+            <li>
+              <span class="bib-kind kind-method">Method</span>
+              Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. <em>Numerische Mathematik, 1</em>, 269–271.
+              <a href="https://doi.org/10.1007/BF01386390" target="_blank" rel="noopener noreferrer">https://doi.org/10.1007/BF01386390</a>
+              <p class="bib-use">The search is eight-connected A* on the 150 × 150 grid. Row 0 is north and column 0 is west. A diagonal step is refused when either orthogonal neighbor is blocked, so the path cannot cut a corner through a wall. Fastest accumulates hours from the force-balance step. Its heuristic is straight-line meters divided by 2.4 m/s, which stays admissible because dust and the power cap never make the rover faster than 2.4 m/s, and the 3D path is at least as long as the horizontal path. Safest accumulates dose, plus 10<sup>−6</sup> mSv per percent of along-track grade per kilometre, so two equal-dose paths prefer the gentler one. Its heuristic uses the lowest radiation rate on the map. Custom multiplies meters by (1 + slope weight × travel grade / 25 + radiation weight × average rate + dust weight × average dust). Weights are clamped at zero. A hazard toggled while the rover is moving replans from the last cell the rover reached. The closed set is valid because each heuristic is a lower bound.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-planner">Planner choice</span>
+              The safety score is a display index. It starts at 100 and subtracts six penalties, then keeps one decimal so two close corridors do not collapse to the same integer. It is not the cost A* minimizes, and Safest can lose this index to another corridor if that other corridor is short enough to win the time and dose rows while losing the grade row.
+              <p class="bib-use">Radiation points = 26 × clamp((average rate − 0.55) / 0.85, 0, 1). Dose points = 14 × clamp(mSv / 0.22, 0, 1). Grade points = 18 × clamp(average slope percent / 16, 0, 1). Dust points = 16 × clamp((average dust − 0.12) / 0.75, 0, 1). Peak points = 14 × clamp((steepest slope percent − 6) / 19, 0, 1). Time points = 8 × clamp(hours / 7, 0, 1). The rows under Safety are those six penalties. A score of 75 or higher is marked good, 55 or higher is marked mid, and the rest is marked bad. Two scores within 0.05 are treated as a tie in the tradeoff sentence.</p>
+            </li>
+          </ol>
+
+          <h3>The five sites</h3>
+          <ol class="bib-list">
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Farley, K. A., Williford, K. H., Stack, K. M., and the Mars 2020 Science Team. (2020). Mars 2020 mission overview. <em>Space Science Reviews, 216</em>, 142.
+              <a href="https://doi.org/10.1007/s11214-020-00762-y" target="_blank" rel="noopener noreferrer">https://doi.org/10.1007/s11214-020-00762-y</a>
+              <p class="bib-use">Jezero Crater is the Perseverance landing site. This planner’s window is 77.30°E to 77.90°E and 18.15°N to 18.75°N. The default sortie runs from Crater Floor (column 35, row 95) to Neretva Vallis Delta (column 112, row 42). That window is a planning box on the crater. It is not the traverse Perseverance has driven.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Grotzinger, J. P., Crisp, J., Vasavada, A. R., and the MSL Science Team. (2012). Mars Science Laboratory mission and science investigation. <em>Space Science Reviews, 170</em>, 5–56.
+              <a href="https://doi.org/10.1007/s11214-012-9892-2" target="_blank" rel="noopener noreferrer">https://doi.org/10.1007/s11214-012-9892-2</a>
+              <p class="bib-use">Gale Crater is the Curiosity landing site, and the place the 0.64 mSv/day anchor was measured. This window is 137.00°E to 138.00°E and 5.80°S to 4.80°S. The default sortie runs from Aeolis Palus Floor to the Mount Sharp foothills. The crater is not inverted: the floor stays low and the foothills rise toward the 500 m top of the envelope. Recommended picture stretch is 2.2×.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Lucchitta, B. K., McEwen, A. S., Clow, G. D., Geissler, P. E., Singer, R. B., Schultz, R. A., and Squyres, S. W. (1992). The canyon system on Mars. In H. H. Kieffer, B. M. Jakosky, C. W. Snyder, and M. S. Matthews (Eds.), <em>Mars</em> (pp. 453–492). University of Arizona Press.
+              <p class="bib-use">Valles Marineris is represented by a Coprates Chasma window, 60.50°W to 59.50°W and 14.20°S to 13.20°S, with the elevation envelope running from −4,800 m to 1,200 m. The default sortie crosses the canyon floor from west to east. The relief in that envelope is why this site, more than the plains, is where grade dominates the safety index.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Dundas, C. M., Bramson, A. M., Ojha, L., Wray, J. J., Mellon, M. T., Byrne, S., Holt, J. W., and McEwen, A. S. (2018). Exposed subsurface ice sheets in the Martian mid-latitudes. <em>Science, 359</em>(6372), 199–201.
+              <a href="https://doi.org/10.1126/science.aao1619" target="_blank" rel="noopener noreferrer">https://doi.org/10.1126/science.aao1619</a>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Morgan, G. A., Putzig, N. E., Perry, M. R., and the Subsurface Water Ice Mapping team. (2021). Availability of subsurface water-ice resources in the northern mid-latitudes of Mars. <em>Nature Astronomy, 5</em>, 230–236.
+              <a href="https://doi.org/10.1038/s41550-020-01290-z" target="_blank" rel="noopener noreferrer">https://doi.org/10.1038/s41550-020-01290-z</a>
+              <p class="bib-use">Arcadia Planitia is on the list because shallow ice is accessible there. This window is 172.00°W to 171.00°W and 39.00°N to 40.00°N, a low-relief plain from −4,100 m to −3,850 m. The dust baseline is 0.68, the highest of the five sites. The grid does not contain a radar ice thickness. The ice papers justify the site. They do not supply a layer in the cost function.</p>
+            </li>
+            <li>
+              <span class="bib-kind kind-measured">Measured</span>
+              Plescia, J. B. (2004). Morphometric properties of Martian volcanoes. <em>Journal of Geophysical Research: Planets, 109</em>, E03003.
+              <a href="https://doi.org/10.1029/2003JE002031" target="_blank" rel="noopener noreferrer">https://doi.org/10.1029/2003JE002031</a>
+              <p class="bib-use">Olympus Mons is the thin-air end member. This window is the summit caldera, 134.50°W to 133.50°W and 18.00°N to 19.00°N, with the envelope pinned from 18,000 m to 21,229 m. The 21,229 m top is the top of that envelope for this one-degree box. It is not a claim that every caldera-rim cell is exactly 21,229 m. MOLA places the summit near 21 km above the areoid, which is why the radiation baseline here is 0.88 mSv/day rather than the Gale anchor of 0.64. Recommended picture stretch is 2.5×. Zhang and colleagues, cited above, are the radiation paper that treats this summit explicitly.</p>
+            </li>
+          </ol>
         </div>
       </div>
     </div>
