@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Navimartian · EVA Route Planner</title>
     <link rel="icon" href="./favicon.ico" />
-    <script type="module" crossorigin src="./assets/index-83H7GTza.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-B8YI1l1a.css">
+    <script type="module" crossorigin src="./assets/index-CCQhPK19.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BpjEVXyy.css">
   </head>
   <body>
     <div id="viewport"></div>
@@ -151,6 +151,7 @@
             <th></th>
             <th id="col-safe">Safest</th>
             <th id="col-fast">Fastest</th>
+            <th id="col-custom">Custom</th>
           </tr>
         </thead>
         <tbody>
@@ -158,40 +159,77 @@
             <th>Distance</th>
             <td id="safe-distance">—</td>
             <td id="fast-distance">—</td>
+            <td id="custom-distance">—</td>
           </tr>
           <tr>
             <th>Time</th>
             <td id="safe-time">—</td>
             <td id="fast-time">—</td>
+            <td id="custom-time">—</td>
           </tr>
           <tr>
             <th>Radiation</th>
             <td id="safe-rad">—</td>
             <td id="fast-rad">—</td>
+            <td id="custom-rad">—</td>
           </tr>
           <tr>
             <th>Oxygen</th>
             <td id="safe-o2">—</td>
             <td id="fast-o2">—</td>
+            <td id="custom-o2">—</td>
           </tr>
           <tr>
             <th>Battery</th>
             <td id="safe-kwh">—</td>
             <td id="fast-kwh">—</td>
+            <td id="custom-kwh">—</td>
           </tr>
           <tr class="score-row">
             <th>Safety</th>
             <td id="safe-score" class="score">—</td>
             <td id="fast-score" class="score">—</td>
+            <td id="custom-score" class="score">—</td>
+          </tr>
+          <tr class="part-row">
+            <th>Rad pts</th>
+            <td id="safe-part-radiation">—</td>
+            <td id="fast-part-radiation">—</td>
+            <td id="custom-part-radiation">—</td>
+          </tr>
+          <tr class="part-row">
+            <th>Dose pts</th>
+            <td id="safe-part-dose">—</td>
+            <td id="fast-part-dose">—</td>
+            <td id="custom-part-dose">—</td>
+          </tr>
+          <tr class="part-row">
+            <th>Grade pts</th>
+            <td id="safe-part-grade">—</td>
+            <td id="fast-part-grade">—</td>
+            <td id="custom-part-grade">—</td>
+          </tr>
+          <tr class="part-row">
+            <th>Dust pts</th>
+            <td id="safe-part-dust">—</td>
+            <td id="fast-part-dust">—</td>
+            <td id="custom-part-dust">—</td>
+          </tr>
+          <tr class="part-row">
+            <th>Peak pts</th>
+            <td id="safe-part-peak">—</td>
+            <td id="fast-part-peak">—</td>
+            <td id="custom-part-peak">—</td>
+          </tr>
+          <tr class="part-row">
+            <th>Time pts</th>
+            <td id="safe-part-time">—</td>
+            <td id="fast-part-time">—</td>
+            <td id="custom-part-time">—</td>
           </tr>
         </tbody>
       </table>
       <p id="tradeoff" class="tradeoff"></p>
-
-      <div id="custom-card" class="custom-card" hidden>
-        <p class="kicker">Custom weights</p>
-        <dl class="live compact" id="custom-metrics"></dl>
-      </div>
 
       <div class="sim-block">
         <div class="sim-head">
@@ -228,6 +266,7 @@
     <p class="route-key" aria-label="Route key">
       <span><i class="swatch safe"></i>Safest</span>
       <span><i class="swatch fast"></i>Fastest</span>
+      <span><i class="swatch custom"></i>Custom</span>
     </p>
     <p class="bottom-hint">Left click sets the start base · Shift+click sets the destination · Drag to orbit · Scroll to zoom</p>
 
@@ -252,7 +291,7 @@
           <ol>
             <li><strong>Mission sites.</strong> Use the top bar to switch Jezero Crater, Valles Marineris, Arcadia Planitia, Gale Crater, and Olympus Mons. Each load pulls that site’s terrain and snaps the beacons to its default sortie.</li>
             <li><strong>Waypoints.</strong> Left-click the terrain to set the start base. Shift+click, or turn on "Set destination" and click, to place the target.</li>
-            <li><strong>Corridors and presets.</strong> "Safest" draws the solid ice tube and minimizes cumulative dose. "Fastest" draws the magenta dashed line and minimizes travel time. "Custom" uses the weight sliders. "Heavy Cargo" sets a 15% slope limit. "Light Scout" sets a 25% limit and weights radiation more heavily.</li>
+            <li><strong>Corridors and presets.</strong> "Safest" draws the solid ice tube and minimizes cumulative dose. "Fastest" draws the magenta dashed line and minimizes travel time. "Custom" draws the amber line from the slope, radiation, and dust sliders, and its numbers stay in the third comparison column. "Heavy Cargo" sets a 15% slope limit. "Light Scout" sets a 25% limit and weights radiation more heavily.</li>
             <li><strong>Overlays.</strong> "Surface", "Slope", and "Rad / dust" change the drape. Vertical exaggeration only stretches the picture. Slope % stays the true ground grade.</li>
             <li><strong>Contingencies.</strong> "Trigger Dust Storm" drops a local dome. The whole dome is impassable, and the status line reports when both corridors stay outside it. "Relocate Dust Storm" moves that dome. "Trigger Solar Storm (SEP)" raises radiation across the whole region. Both can be on together. If either hazard changes while the rover is moving, both corridors replan from the last cell the rover reached.</li>
             <li><strong>Playback and export.</strong> "Simulate EVA traverse" drives the rover on the physics clock. "Export Mission Plan (.json)" downloads the site, hazards, comparison, and lat/lon waypoints.</li>
